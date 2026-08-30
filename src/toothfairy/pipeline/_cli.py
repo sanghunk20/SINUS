@@ -2,7 +2,7 @@
 
 Each entry point groups a few pipeline programs. The dispatcher takes the first argument
 as the sub-command and hands **everything after it, verbatim** to that program's own
-``main(argv)``, so ``main_rft.py rollout --help`` prints the rollout program's help and
+``main(argv)``, so ``toothfairy.cli.rft rollout --help`` prints the rollout program's help and
 every flag documented for the module keeps working unchanged.
 """
 from __future__ import annotations

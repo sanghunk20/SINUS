@@ -10,7 +10,7 @@ the same code.
 The sampling module `toothfairy.rl.rollout` is deliberately *not* re-exported here — it pulls
 in torch, transformers and peft, and keeping it separate lets the CPU-only reward code run
 without that heavy stack. The rejection-sampling pipeline imports it directly; see
-`main_rft.py`.
+`toothfairy.cli.rft`.
 """
 
 from .extract import claim_f1, extract_claims, set_f1  # noqa: F401

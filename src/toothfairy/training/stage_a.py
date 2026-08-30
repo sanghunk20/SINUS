@@ -2,7 +2,7 @@
 
 The stage adapts perception through **claim classification alone**; no language model is loaded,
 which is what makes it cheap (about a minute per epoch). Both segmentation networks stay frozen,
-so their features are read from the cache built by `main_cache.py` and the only trainable
+so their features are read from the cache built by `toothfairy.cli.cache` and the only trainable
 parameters are the 0.41M aggregator and the head. Once this stage has finished the encoder is
 frozen too, and decoding runs on top of it through the prefix and LLM LoRA stages.
 

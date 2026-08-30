@@ -12,9 +12,9 @@ This runs the two frozen networks over every volume once and takes hours. Both e
 are resumable — a volume whose .npz already exists is skipped — so an interrupted run can
 simply be started again.
 
-    python main_cache.py                      # both caches
-    python main_cache.py --target teeth       # only the per-tooth anchors
-    python main_cache.py --device cuda:1
+    python -m toothfairy.cli.cache                      # both caches
+    python -m toothfairy.cli.cache --target teeth       # only the per-tooth anchors
+    python -m toothfairy.cli.cache --device cuda:1
 """
 from __future__ import annotations
 

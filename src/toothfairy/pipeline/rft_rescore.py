@@ -40,7 +40,7 @@ async def main(argv: list[str] | None = None) -> int:
                          "and tooth presence statements are not stripped.")
     ap.add_argument("--filter-cache", default=None,
                     help="cache of the official finding_filter decisions (produced by "
-                         "`main_rft.py filter-cache`). When given, both reference and candidate are "
+                         "`toothfairy.cli.rft filter-cache`). When given, both reference and candidate are "
                          "passed through the filter before scoring, so only the sentences the "
                          "official metric sees enter the reward. If the reference empties out "
                          "entirely, the region stops counting as a finding region and moves to "

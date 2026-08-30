@@ -254,7 +254,7 @@ def build_loaders(cfg: ReportModelConfig, tokenizer, dist=None):
         if len(ds) == 0:
             raise FileNotFoundError(
                 f"no cached region features / GT for {name} split under {ds.feat_dir}. "
-                f"Run main_cache.py first.")
+                f"Run toothfairy.cli.cache first.")
     seed = cfg.train.seed
     g = torch.Generator()
     g.manual_seed(seed)

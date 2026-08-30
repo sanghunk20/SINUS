@@ -281,7 +281,7 @@ def _judge_phrases(text: str | None, neutralise_presence: bool = True) -> list[s
 
 
 def _phrase_key(phrases: list[str]) -> str:
-    """Cache key used by `toothfairy/pipeline/rft_filter_cache.py` — the phrase list itself."""
+    """Cache key used by `src/toothfairy/pipeline/rft_filter_cache.py` — the phrase list itself."""
     return hashlib.sha1(json.dumps(list(phrases), ensure_ascii=False).encode()).hexdigest()
 
 
@@ -320,7 +320,7 @@ class FindingFilter:
         if self.n_miss:
             raise RuntimeError(
                 f"{self.n_miss:,} filter-cache misses ({self.n_hit:,} hits) — the cache does "
-                f"not cover this dump. Rebuild it with `main_rft.py filter-cache` on the same dump. "
+                f"not cover this dump. Rebuild it with `toothfairy.cli.rft filter-cache` on the same dump. "
                 f"Letting a miss through scores that sample unfiltered and mixes the reward.")
 
 

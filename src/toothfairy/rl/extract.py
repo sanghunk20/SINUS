@@ -2,7 +2,7 @@
 
     claim = (target, axis, value)
       target = "11".."48" (FDI tooth) or "maxilla"/"mandible"/"nerve"
-      axis/value = the axes and categories in toothfairy/schema/claims.py (canonical source)
+      axis/value = the axes and categories in src/toothfairy/schema/claims.py (canonical source)
 
 Why rules are workable here: per-structure decode emits one region at a time, so the sentences
 are short (tooth regions average 8.3 words in the reference) and formulaic, and the region id

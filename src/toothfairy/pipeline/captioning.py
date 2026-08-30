@@ -5,7 +5,7 @@ The official ToothFairy4 Phase 1 captioning score is avg(BLEU-4, METEOR). RadFac
 primary metric for model selection here and BLEU/METEOR are secondary, but they are computed
 anyway: they carry 0.2 of the official score and they catch text collapse.
 
-Input = the predictions.csv written by `main_eval.py generate` (example_id, prediction,
+Input = the predictions.csv written by `toothfairy.cli.eval generate` (example_id, prediction,
 target). No GPU
 needed (CPU only). BLEU-4 = sacrebleu corpus BLEU (built-in 13a tokenizer, 0-1 scale). METEOR =
 the mean of nltk sentence METEOR over cases (needs wordnet). Greedy generation plus a fixed

@@ -103,7 +103,7 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="toothfairy/configs/sinus_rft_rollout.yaml")
     ap.add_argument("--init-from", default="")
-    ap.add_argument("--selected", required=True, help="rft_selected.jsonl written by `main_rft.py select`")
+    ap.add_argument("--selected", required=True, help="rft_selected.jsonl written by `toothfairy.cli.rft select`")
     ap.add_argument("--lr", type=float, required=True)
     ap.add_argument("--epochs", type=int, default=2)
     ap.add_argument("--grad-accum", type=int, default=4)

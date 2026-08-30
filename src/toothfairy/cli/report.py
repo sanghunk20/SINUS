@@ -6,8 +6,8 @@ networks, the aggregator, the 38 per-slot decodes and the narrative rewrite. The
 feature cache and no ground truth involved — the perception features are extracted from
 the volume on the fly. Peak VRAM is 19.8GB and one case takes about 170s on an A10G.
 
-    python main_report.py --model-dir /path/to/weights --volume case.nii.gz
-    python main_report.py --model-dir /path/to/weights --volume case.mha --out report.txt
+    python -m toothfairy.cli.report --model-dir /path/to/weights --volume case.nii.gz
+    python -m toothfairy.cli.report --model-dir /path/to/weights --volume case.mha --out report.txt
 
 The weights are not in this repository. The model directory is expected to hold:
 

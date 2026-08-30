@@ -341,7 +341,7 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--groups", default="",
                     help="path of the group file to merge. Empty = rft_groups.shard*.jsonl in "
                          "out-dir. Use it to feed in a dump re-scored by the entailment judge "
-                         "(produced by `main_rft.py rescore`, which runs where RadFact is installed, "
+                         "(produced by `toothfairy.cli.rft rescore`, which runs where RadFact is installed, "
                          "where torch is not installed).")
     # Generation is per patient, so it shards straight over GPUs (same order split by stride,
     # so the shards never overlap).

@@ -7,7 +7,7 @@
 #
 # This stage never loads the LLM (FindingsModel = ReportModel without the realizer).
 #   encoder(batch) -> ctx[B,38,d] -> findings head -> claim logits, loss = L_findings only.
-# Run: python main_train.py --gpus 0 --stage perception
+# Run: python -m toothfairy.cli.train --gpus 0 --stage perception
 #   (a classifier over cached features: a cheap stage, measured at ~10 s/epoch)
 #
 # The feature caches below are the soft-clip ones (see perception/softclip_norm.py); the later

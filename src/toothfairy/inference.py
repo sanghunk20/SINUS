@@ -1,6 +1,6 @@
 """End-to-end report generation: one CBCT volume -> one English radiology report.
 
-This is the inference path, driven by `main_report.py`. There is no ground truth and no
+This is the inference path, driven by `toothfairy.cli.report`. There is no ground truth and no
 feature cache here, so the perception features are extracted from the volume **on the fly**:
 
   1. **dental segmentation network** (frozen), one pass -> non-teeth and arch region features
@@ -94,7 +94,7 @@ def assemble_report(region_texts: dict) -> str:
 
 # ------------------------------------------------- QLoRA narrative rewriter (slot-labelled)
 # WARNING: the three definitions below are copied **verbatim** from
-#    `toothfairy/pipeline/rewrite_train.py`. If the prompt differs from the training prompt by even
+#    `src/toothfairy/pipeline/rewrite_train.py`. If the prompt differs from the training prompt by even
 #    one character, the mapping the adapter learned (slots -> report) is not the one applied here.
 #    Change this whenever the training module changes — on adapter load,
 #    `_assert_rewrite_prompt_matches_training()` compares against the training prompt stored in
@@ -141,7 +141,7 @@ def _assert_rewrite_prompt_matches_training(adapter_dir: Path) -> None:
         return
     if trained and trained != _QLORA_SYSTEM:
         print("[pipeline] WARNING: rewrite system prompt differs from the training prompt — the "
-              "adapter's learned mapping is not applied as trained. Match toothfairy/pipeline/rewrite_train.py.",
+              "adapter's learned mapping is not applied as trained. Match src/toothfairy/pipeline/rewrite_train.py.",
               flush=True)
 
 

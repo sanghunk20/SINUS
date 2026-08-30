@@ -3,7 +3,7 @@
 ## 1. Generate
 
 ```bash
-python main_eval.py generate --run-dir models/sinus_rft_eval
+python -m toothfairy.cli.eval generate --run-dir models/sinus_rft_eval
 ```
 
 Writes `predictions.csv` (example_id, prediction, target) and `per_region.jsonl` (the raw
@@ -14,9 +14,9 @@ slot outputs) into the run directory. `predictions.csv` is what everything downs
 The submitted model reports the rewritten text, not the bullets:
 
 ```bash
-python main_rewrite.py pairs-from-run --run-dir models/sinus_rft_eval --no-cls \
+python -m toothfairy.cli.rewrite pairs-from-run --run-dir models/sinus_rft_eval --no-cls \
     --out experiments/analysis/rewrite/pairs_val.jsonl
-python main_rewrite.py apply --pairs experiments/analysis/rewrite/pairs_val.jsonl \
+python -m toothfairy.cli.rewrite apply --pairs experiments/analysis/rewrite/pairs_val.jsonl \
     --adapter models/rewrite_qlora_nocls/adapter_best \
     --out-dir experiments/analysis/rewrite/sinus_rft_eval
 ```
@@ -28,7 +28,7 @@ the rewriter at evaluation time means rewriting the ground truth.
 ## 3. Captioning metrics
 
 ```bash
-python main_eval.py captioning --csv models/sinus_rft_eval/predictions.csv
+python -m toothfairy.cli.eval captioning --csv models/sinus_rft_eval/predictions.csv
 ```
 
 BLEU-4 and METEOR, no GPU.
@@ -56,7 +56,7 @@ Two warnings, both measured rather than assumed:
 ## 5. Official score
 
 ```bash
-python main_eval.py score --csv models/sinus_rft_eval/predictions.csv \
+python -m toothfairy.cli.eval score --csv models/sinus_rft_eval/predictions.csv \
     --radfact <radfact-output>/per_sample_scores.json
 ```
 
@@ -67,7 +67,7 @@ python main_eval.py score --csv models/sinus_rft_eval/predictions.csv \
 RadFact drops a case when the judge cannot quote its evidence verbatim, and the set of
 dropped cases differs per model — 48 to 52 out of 62 in our runs. **Compare per-patient
 scores over the cases both models scored**, not the two averages, or the comparison is
-between different patients. `main_eval.py score --common-with <other per_sample_scores.json>`
+between different patients. `toothfairy.cli.eval score --common-with <other per_sample_scores.json>`
 restricts to that intersection.
 
 The same effect gets worse the more arms are compared at once: requiring five arms to have

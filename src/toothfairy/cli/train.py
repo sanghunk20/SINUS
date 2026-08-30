@@ -14,11 +14,11 @@ Each stage optimises exactly one thing and starts from the previous stage's chec
      trains only the 29.1M LoRA adapter of the frozen 4-bit language model.
 
 Rejection-sampling fine-tuning, the last stage of the submitted model, is a separate
-pipeline — see ``main_rft.py`` and TRAIN.md.
+pipeline — see ``toothfairy.cli.rft`` and TRAIN.md.
 
-    python main_train.py --gpus 0                 # single GPU, all three stages
-    python main_train.py --gpus 0,1               # 2-rank DDP for stages 2 and 3
-    python main_train.py --gpus 0 --stage prefix  # one stage only
+    python -m toothfairy.cli.train --gpus 0                 # single GPU, all three stages
+    python -m toothfairy.cli.train --gpus 0,1               # 2-rank DDP for stages 2 and 3
+    python -m toothfairy.cli.train --gpus 0 --stage prefix  # one stage only
 
 A stage whose output directory already holds ``done.flag`` is skipped, so an interrupted
 run can be restarted with the same command.
@@ -40,9 +40,9 @@ import subprocess
 import sys
 from pathlib import Path
 
-from toothfairy.paths import REPO
+from toothfairy.paths import REPO, SRC
 
-CONFIG_DIR = REPO / "toothfairy" / "configs"
+CONFIG_DIR = Path(__file__).resolve().parents[1] / "configs"
 
 # stage -> (module, config stem, output dir, resumable)
 STAGES = {
@@ -98,6 +98,10 @@ def run_stage(stage: str, gpus: list[str], master_port: int) -> int:
         cmd.append("--resume")
 
     env = {**os.environ, **TRAIN_ENV, "CUDA_VISIBLE_DEVICES": ",".join(devices)}
+    # The stages run as child processes, so they need to find the package too. With
+    # `pip install -e .` they already would; putting src on their path as well means an
+    # uninstalled checkout works the same way.
+    env["PYTHONPATH"] = os.pathsep.join(filter(None, [str(SRC), env.get("PYTHONPATH", "")]))
     print(f"[train] {out_dir} (config={cfg.name}, ranks={nproc}, gpus={','.join(devices)})",
           flush=True)
     rc = subprocess.call(cmd, cwd=REPO, env=env)
@@ -134,7 +138,7 @@ def main(argv: list[str] | None = None) -> int:
             return rc
 
     print("[train] all requested stages done — evaluate with: "
-          "python main_eval.py generate --run-dir models/sinus_llm_lora", flush=True)
+          "python -m toothfairy.cli.eval generate --run-dir models/sinus_llm_lora", flush=True)
     return 0
 
 

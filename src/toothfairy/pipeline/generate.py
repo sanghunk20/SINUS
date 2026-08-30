@@ -7,7 +7,7 @@ the report.
 
 The generated region texts are concatenated into a single report as bullets in a fixed anatomical
 order (no section headers), and the reference text is written as the target in
-predictions.csv/jsonl. BLEU/METEOR are computed by `main_eval.py captioning` and RadFact by the
+predictions.csv/jsonl. BLEU/METEOR are computed by `toothfairy.cli.eval captioning` and RadFact by the
 RadFact scorer, both separately.
 
 usage:

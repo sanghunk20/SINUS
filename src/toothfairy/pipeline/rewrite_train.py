@@ -81,7 +81,7 @@ def split_by_patient(rows: list[dict], dev_frac: float, seed: int):
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--pairs", required=True,
-                    help="jsonl from `main_rewrite.py pairs --split train`")
+                    help="jsonl from `toothfairy.cli.rewrite pairs --split train`")
     ap.add_argument("--no-cls", action="store_true",
                     help="record that the pairs were built without the two arch-summary "
                          "slots. This does not change training — the pairs already are "

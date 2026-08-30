@@ -1,7 +1,7 @@
 # Training recipe
 
-Every command is run from the repository root. `PYTHONPATH` is not needed — the package sits
-at the top level. See [DATA.md](DATA.md) for what has to be on disk first.
+Every command is run from the repository root, with the package installed (`pip install -e .`)
+or with `PYTHONPATH=src`. See [DATA.md](DATA.md) for what has to be on disk first.
 
 Wall-clock on the machine the model was trained on (H100 80GB): caches a few hours, stage 1
 minutes, stage 2 about 6 hours on two ranks, stage 3 about 3 hours, RFT about 6 hours.
@@ -15,7 +15,7 @@ python -m toothfairy.data.make_splits
 ## 2. Feature caches
 
 ```bash
-python main_cache.py                      # both networks, every volume, resumable
+python -m toothfairy.cli.cache                      # both networks, every volume, resumable
 ```
 
 This is the expensive, one-off step: two frozen segmentation networks over every volume.
@@ -24,8 +24,8 @@ Restarting the command skips volumes whose `.npz` already exists.
 ## 3. Curriculum
 
 ```bash
-python main_train.py --gpus 0             # single GPU
-python main_train.py --gpus 0,1           # stages 2 and 3 on two ranks
+python -m toothfairy.cli.train --gpus 0             # single GPU
+python -m toothfairy.cli.train --gpus 0,1           # stages 2 and 3 on two ranks
 ```
 
 Three stages, each optimising one objective and starting from the previous checkpoint:
@@ -68,26 +68,26 @@ Without them those two steps fail at import. Steps 4.1, 4.4, 4.5 and 4.6 do not 
 RFT=experiments/analysis/rft
 
 # 4.1 sample the policy (GPU; shardable with --shard i --num-shards N)
-python main_rft.py rollout --all-regions --threshold 0.3 --maint-ratio 0 \
+python -m toothfairy.cli.rft rollout --all-regions --threshold 0.3 --maint-ratio 0 \
     --reward-gt sampled --out-dir $RFT
 
 # 4.2 cache the official finding_filter verdicts for both sides, then fold the shards in
-python main_rft.py filter-cache --dumps $RFT/rft_groups.shard*.jsonl --out $RFT --sides both
-python main_rft.py filter-cache --out $RFT --merge
+python -m toothfairy.cli.rft filter-cache --dumps $RFT/rft_groups.shard*.jsonl --out $RFT --sides both
+python -m toothfairy.cli.rft filter-cache --out $RFT --merge
 
 # 4.3 re-score the dump with the entailment judge, through that filter (no regeneration)
-python main_rft.py rescore --out-dir $RFT --pure-radfact --filter-cache $RFT/filter_cache.json
+python -m toothfairy.cli.rft rescore --out-dir $RFT --pure-radfact --filter-cache $RFT/filter_cache.json
 
 # 4.4 select what to train on — reads the re-scored groups, generates nothing
-python main_rft.py select --groups $RFT/rft_groups_llmjudge.jsonl \
+python -m toothfairy.cli.rft select --groups $RFT/rft_groups_llmjudge.jsonl \
     --maint-ratio 0.5 --exclude-cls --out-dir $RFT
 
 # 4.5 one epoch of LoRA fine-tuning on the selection
-python main_rft.py finetune --selected $RFT/rft_selected.jsonl \
+python -m toothfairy.cli.rft finetune --selected $RFT/rft_selected.jsonl \
     --lr 2e-5 --epochs 1 --maint-weight 1 --out-dir models/sinus_rft
 
 # 4.6 fold the fine-tuned LoRA onto the starting policy -> one scorable checkpoint
-python main_rft.py merge --base models/sinus_llm_lora --lora models/sinus_rft \
+python -m toothfairy.cli.rft merge --base models/sinus_llm_lora --lora models/sinus_rft \
     --out models/sinus_rft_eval
 ```
 
@@ -102,9 +102,9 @@ A separate QLoRA adapter, trained ground truth -> ground truth on the training s
 learns reporting style, not clinical content, and is applied to the slot outputs at the end.
 
 ```bash
-python main_rewrite.py pairs --split train --no-cls \
+python -m toothfairy.cli.rewrite pairs --split train --no-cls \
     --out experiments/analysis/rewrite/pairs_train.jsonl
-python main_rewrite.py train --pairs experiments/analysis/rewrite/pairs_train.jsonl \
+python -m toothfairy.cli.rewrite train --pairs experiments/analysis/rewrite/pairs_train.jsonl \
     --no-cls --out-dir models/rewrite_qlora_nocls
 ```
 

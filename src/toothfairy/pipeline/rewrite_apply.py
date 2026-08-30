@@ -31,7 +31,7 @@ def _load_prompt_builders():
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--pairs", required=True, help="output of `main_rewrite.py pairs --split val`")
+    ap.add_argument("--pairs", required=True, help="output of `toothfairy.cli.rewrite pairs --split val`")
     ap.add_argument("--adapter", required=True, help="models/rewrite_qlora_slotlabel/adapter_best")
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--model", default="Qwen/Qwen3.5-9B")

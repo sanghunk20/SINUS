@@ -51,7 +51,7 @@ pipeline.
 ## Layout
 
 ```
-toothfairy/              the model package
+src/toothfairy/          the model package
   config.py              one dataclass tree for every knob; configs/*.yaml fill it in
   paths.py               the repository root, resolved in one place
   schema/claims.py       the claim vocabulary: 10 per-tooth axes + region axes
@@ -67,28 +67,39 @@ toothfairy/              the model package
   pipeline/              the reproduction programs (caching, generation, RFT, rewriting, scoring)
   inference.py           one volume → one report, with no cache and no ground truth
   configs/               the configs that define the submitted model
-
-main_cache.py            build the two feature caches
-main_train.py            the three-stage curriculum
-main_rft.py              rejection-sampling fine-tuning
-main_rewrite.py          the narrative rewriter (train / apply)
-main_eval.py             generate → captioning → official score
-main_report.py           single-volume inference
+  cli/                   the six entry points below
 ```
 
-Every entry point takes `--help`, and every program under `toothfairy/pipeline/` can also be
-run on its own with `python -m toothfairy.pipeline.<name>` when only one step has to be
-repeated.
+| entry point | what it runs |
+|---|---|
+| `python -m toothfairy.cli.cache` | build the two feature caches |
+| `python -m toothfairy.cli.train` | the three-stage curriculum |
+| `python -m toothfairy.cli.rft` | rejection-sampling fine-tuning |
+| `python -m toothfairy.cli.rewrite` | the narrative rewriter (train / apply) |
+| `python -m toothfairy.cli.eval` | generate → captioning → official score |
+| `python -m toothfairy.cli.report` | single-volume inference |
+
+Every entry point takes `--help`, and every program under `pipeline/` can also be run on its
+own with `python -m toothfairy.pipeline.<name>` when only one step has to be repeated.
 
 ## Installation
 
 ```bash
 pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
 pip install -r requirements.txt
+pip install -e .
 ```
 
 Python 3.11 and a CUDA-capable GPU. Training was done on an H100 80GB; inference fits in
 24GB. Both frozen segmentation networks have to be installed as nnU-Net model folders.
+
+torch comes from its own index, so it is installed first and separately; that is why
+`pyproject.toml` pins no runtime dependencies of its own. Without `pip install -e .` the
+commands still work from the repository root with `PYTHONPATH=src`.
+
+⚠️ Run from a checkout even when the package is installed: the data, the feature caches and
+the model directories are resolved relative to the repository root, not to the installation
+(`src/toothfairy/paths.py`).
 
 ## Reproducing
 
@@ -99,21 +110,21 @@ Python 3.11 and a CUDA-capable GPU. Training was done on an H100 80GB; inference
 In short:
 
 ```bash
-python -m toothfairy.data.make_splits          # fixed patient-level split, seed 42
-python main_cache.py                           # both feature caches (hours; resumable)
-python main_train.py --gpus 0                  # perception → prefix → LLM LoRA
-python main_rft.py rollout --help              # then follow TRAIN.md §4
-python main_eval.py generate --run-dir models/sinus_rft_eval
+python -m toothfairy.data.make_splits                    # patient-level split, seed 42
+python -m toothfairy.cli.cache                          # both feature caches (hours; resumable)
+python -m toothfairy.cli.train --gpus 0                 # perception → prefix → LLM LoRA
+python -m toothfairy.cli.rft rollout --help             # then follow TRAIN.md §4
+python -m toothfairy.cli.eval generate --run-dir models/sinus_rft_eval
 ```
 
 ## Single-volume inference
 
-`main_report.py` is the whole path from a raw volume to a report: preprocessing, both
+`toothfairy.cli.report` is the whole path from a raw volume to a report: preprocessing, both
 segmentation networks, the aggregator, 38 decodes and the narrative rewrite. Peak VRAM is
 19.8GB and one case takes about 170s.
 
 ```bash
-python main_report.py --model-dir /path/to/weights --volume case.nii.gz
+python -m toothfairy.cli.report --model-dir /path/to/weights --volume case.nii.gz
 ```
 
 The weights are not in this repository (about 7.6GB, including the frozen language model).
@@ -144,7 +155,7 @@ carries the training prompt, which is compared against the one about to be used.
   can be run against equivalent annotations.
 - **Weights.** Neither ours nor the frozen third-party networks.
 - **The evaluation container.** The submitted Grand Challenge algorithm was a thin I/O
-  wrapper around `main_report.py`; only the report-generation path is released.
+  wrapper around `toothfairy.cli.report`; only the report-generation path is released.
 
 ## Licence
 
