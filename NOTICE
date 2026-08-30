@@ -24,7 +24,7 @@ repository's licence:
     text encoder used as the anchor of the region-text alignment loss.
   * RadFact (Microsoft) and radfact_lite (AImageLab) — report-level scoring code.
   * PyTorch, Hugging Face transformers / PEFT / bitsandbytes, SimpleITK, and the other
-    packages listed in requirements.txt.
+    packages pinned in pyproject.toml.
 
 --------------------------------------------------------------------------------
 Data

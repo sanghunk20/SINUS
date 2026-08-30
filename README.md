@@ -51,6 +51,11 @@ pipeline.
 ## Layout
 
 ```
+pyproject.toml           dependencies, pinned to the validated environment
+README.md                this file
+TRAIN.md  EVAL.md        the recipes: curriculum + RFT + rewriter / generation + scoring
+DATA.md                  what has to be on disk, and in what format
+figures/                 the architecture diagram
 src/toothfairy/          the model package
   config.py              one dataclass tree for every knob; configs/*.yaml fill it in
   paths.py               the repository root, resolved in one place
@@ -86,16 +91,25 @@ own with `python -m toothfairy.pipeline.<name>` when only one step has to be rep
 
 ```bash
 pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
-pip install -r requirements.txt
 pip install -e .
 ```
 
 Python 3.11 and a CUDA-capable GPU. Training was done on an H100 80GB; inference fits in
 24GB. Both frozen segmentation networks have to be installed as nnU-Net model folders.
 
-torch comes from its own index, so it is installed first and separately; that is why
-`pyproject.toml` pins no runtime dependencies of its own. Without `pip install -e .` the
-commands still work from the repository root with `PYTHONPATH=src`.
+Install torch first, from the index that matches your CUDA build. `pyproject.toml` pins it as
+`torch==2.11.0`, which a `2.11.0+cu128` install already satisfies, so the second command will
+not pull a different build over it — run the second command alone and you get whatever torch
+PyPI serves for the platform. Every other dependency is pinned in the same file, at the
+versions this was validated on, next to a note on the three Triton kernels that are left
+uninstalled on purpose.
+
+Two extras exist for steps that not everyone runs: `pip install -e '.[rft]'` adds the OpenAI
+client the rejection-sampling steps need to reach a judge endpoint, and `.[wandb]` adds
+training-curve logging.
+
+Without `pip install -e .` the commands still work from the repository root with
+`PYTHONPATH=src`.
 
 ⚠️ Run from a checkout even when the package is installed: the data, the feature caches and
 the model directories are resolved relative to the repository root, not to the installation
@@ -110,10 +124,10 @@ the model directories are resolved relative to the repository root, not to the i
 In short:
 
 ```bash
-python -m toothfairy.data.make_splits                    # patient-level split, seed 42
-python -m toothfairy.cli.cache                          # both feature caches (hours; resumable)
-python -m toothfairy.cli.train --gpus 0                 # perception → prefix → LLM LoRA
-python -m toothfairy.cli.rft rollout --help             # then follow TRAIN.md §4
+python -m toothfairy.data.make_splits         # patient-level split, seed 42
+python -m toothfairy.cli.cache                # both feature caches (hours; resumable)
+python -m toothfairy.cli.train --gpus 0       # perception → prefix → LLM LoRA
+python -m toothfairy.cli.rft rollout --help   # then follow TRAIN.md §4
 python -m toothfairy.cli.eval generate --run-dir models/sinus_rft_eval
 ```
 
@@ -155,7 +169,8 @@ carries the training prompt, which is compared against the one about to be used.
   can be run against equivalent annotations.
 - **Weights.** Neither ours nor the frozen third-party networks.
 - **The evaluation container.** The submitted Grand Challenge algorithm was a thin I/O
-  wrapper around `toothfairy.cli.report`; only the report-generation path is released.
+  wrapper around the same report-generation path (`src/toothfairy/inference.py`); only that
+  path is released, driven here by `toothfairy.cli.report`.
 
 ## Licence
 
