@@ -249,6 +249,17 @@ class ReportGenerator:
             torch.cuda.empty_cache()
         model = ReportModel(self.cfg).to(self.device).eval()
         ck = torch.load(self._model_dir / self._ckpt_name, map_location=self.device)
+        # The final submission used a larger findings schema (31 vs 22 inputs).
+        # Preserve its unused probability projector when findings are disabled.
+        # An active findings head must still match the checkpoint schema exactly.
+        prob_weight = ck["trainable_state"].get("realizer.prob_proj.weight")
+        proj = model.realizer.prob_proj
+        if prob_weight is not None and prob_weight.shape != proj.weight.shape:
+            if model.findings_head is not None or prob_weight.shape[0] != proj.out_features:
+                raise RuntimeError("Checkpoint probability projector does not match the findings schema")
+            model.realizer.prob_proj = torch.nn.Linear(
+                prob_weight.shape[1], proj.out_features, bias=proj.bias is not None,
+                device=proj.weight.device, dtype=proj.weight.dtype).eval()
         _, unexpected = model.load_state_dict(ck["trainable_state"], strict=False)
         if unexpected:
             raise RuntimeError(f"{self._ckpt_name} unexpected keys: {list(unexpected)[:5]}")
@@ -463,6 +474,9 @@ class ReportGenerator:
         return {"upper": arch(slice(0, 16)), "lower": arch(slice(16, 32))}
 
     def _write_orig(self, volume, tmpdir: Path) -> str:
+        if isinstance(volume, (str, Path)) and not str(volume).lower().endswith((".nii", ".nii.gz")):
+            import SimpleITK
+            volume = SimpleITK.ReadImage(str(volume))
         if hasattr(volume, "GetSize"):                            # SimpleITK image
             import SimpleITK
             src = tmpdir / "volume_in.nii.gz"

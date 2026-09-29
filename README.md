@@ -90,14 +90,15 @@ own with `python -m toothfairy.pipeline.<name>` when only one step has to be rep
 ## Installation
 
 ```bash
-pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
+pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu128
 pip install -e .
 ```
 
 Python 3.11 and a CUDA-capable GPU. Training was done on an H100 80GB; inference fits in
 24GB. Both frozen segmentation networks have to be installed as nnU-Net model folders.
 
-Install torch first, from the index that matches your CUDA build. `pyproject.toml` pins it as
+Install torch and torchvision together, from the index that matches your CUDA build.
+Installing torchvision from PyPI separately can select a different CUDA major version. `pyproject.toml` pins it as
 `torch==2.11.0`, which a `2.11.0+cu128` install already satisfies, so the second command will
 not pull a different build over it — run the second command alone and you get whatever torch
 PyPI serves for the platform. Every other dependency is pinned in the same file, at the

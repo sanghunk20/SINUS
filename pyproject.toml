@@ -17,7 +17,7 @@ authors = [{ name = "Sanghun Kim" }]
 #
 # Install torch FIRST, from the index that matches your CUDA build:
 #
-#     pip install torch==2.11.0 --index-url https://download.pytorch.org/whl/cu128
+#     pip install torch==2.11.0 torchvision==0.26.0 --index-url https://download.pytorch.org/whl/cu128
 #     pip install -e .
 #
 # The pin below then reads as already satisfied (`==2.11.0` matches `2.11.0+cu128`), so pip
@@ -26,6 +26,7 @@ authors = [{ name = "Sanghun Kim" }]
 dependencies = [
   # --- core DL stack ---
   "torch==2.11.0",
+  "torchvision==0.26.0",
   "transformers==5.12.1",
   "tokenizers==0.22.2",
   "peft==0.19.1",
